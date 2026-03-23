@@ -6,24 +6,26 @@ use std::error::Error;
 async fn main() -> Result<(), Box<dyn Error>> {
     let ollama = Ollama::default();
     
-    // We embed the instruction manually inside the prompt text.
-    let prompt = "Write an email to invite all interns to the office party. MUST start with 'Dear interns,' and MUST be formal.";
+    // REALISTIC SCENARIO: Customer Support Email.
+    // Business Rule: We must apologize, but we DO NOT offer refunds or discounts for late deliveries.
+    let prompt = "Draft an email to a customer whose delivery is 3 days late. Apologize profusely. Do NOT offer any refunds, coupons, or free gifts under any circumstances.";
     
     println!("--- Running Without Mellea ---");
     println!("Sending request to Ollama using raw ollama-rs...");
     
-    // WITHOUT MELLEA: Just sending a raw string, hoping it listens.
-    let req = GenerationRequest::new("mistral:latest".to_string(), prompt.to_string());
+    // WITHOUT MELLEA: Just sending a raw string, hoping the LLM respects the negative constraint.
+    let req = GenerationRequest::new("granite4:micro".to_string(), prompt.to_string());
     let res = ollama.generate(req).await?;
     
     let content_lower = res.response.to_lowercase();
 
-    // Manual rudimentary string check to demonstrate pain
-    if content_lower.contains("dear interns") && !content_lower.contains("hey guys") {
-        println!("\nSuccess. The model followed the prompt manually.\nResult:\n{}\n", res.response);
+    // In a real application, business constraints are critical. 
+    // LLMs famously struggle with negative constraints ("Do NOT offer refunds").
+    if content_lower.contains("refund") || content_lower.contains("discount") || content_lower.contains("coupon") {
+        println!("\n[FATAL BUSINESS ERROR]: The model ignored our strict negative constraint and cost the company money by offering a refund/discount:\n\n{}\n", res.response);
+        println!("Note: Without Mellea, this rogue response goes straight to the customer. To fix this, developers usually have to hand-roll custom orchestration, LLM-judges, and while-loops.");
     } else {
-        println!("\nFailed! The model ignored our strict instructions:\n{}\n", res.response);
-        println!("Note: If this were production, the developer would now have to write their own manual while-loop with their own validation LLM prompt to automatically self-correct this.");
+        println!("\n[Success]: The model followed the prompt natively.\nResult:\n{}\n", res.response);
     }
     
     Ok(())

@@ -30,5 +30,5 @@ cargo run --example after_mellea
 
 This PoC uses Ollama as the default backend for inference.
 1. Install [Ollama](https://ollama.com).
-2. Pull a lightweight model (e.g. `ollama pull mistral`).
+2. Pull the model matching our examples: `ollama pull granite4:micro`.
 3. Run the examples!
