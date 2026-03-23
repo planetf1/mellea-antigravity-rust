@@ -1,14 +1,14 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+pub mod error;
+pub mod backend;
+pub mod verifier;
+pub mod strategy;
+pub mod session;
+pub mod instruction;
+pub mod backends;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub use error::{MelleaError, Result};
+pub use backend::{ModelBackend, GenerationRequest, GenerationResponse};
+pub use verifier::{GenerativeVerifier, LLMAsAJudgeVerifier};
+pub use strategy::RejectionSamplingConfig;
+pub use session::MelleaSession;
+pub use instruction::InstructionBuilder;
