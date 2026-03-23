@@ -98,3 +98,7 @@ cargo run --example after_mellea
 cargo run --example generative_functions
 cargo run --example structured_data
 ```
+
+## Additional Documentation
+
+- **[Project Retrospective](RETROSPECTIVE.md)**: A breakdown of the Proof of Concept development, feedback to the original request prompt, and a roadmap for future Mellea-Rust features.
