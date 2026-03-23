@@ -42,6 +42,8 @@ impl<B: ModelBackend + Send + Sync + 'static> InstructionBuilder<B> {
         let verifier = LLMAsAJudgeVerifier::new(self.backend.clone());
 
         while loop_count < budget {
+            println!("[Mellea IVR] Prompting model. (Attempt {}/{})", loop_count + 1, budget);
+            
             let mut final_prompt = self.prompt.clone();
             if !self.requirements.is_empty() {
                 final_prompt.push_str("\n\nPlease ensure your response firmly meets the following requirements:\n");
@@ -63,16 +65,21 @@ impl<B: ModelBackend + Send + Sync + 'static> InstructionBuilder<B> {
             for requirement in &self.requirements {
                 let passed = verifier.verify(&response.content, requirement).await?;
                 if !passed {
+                    println!("[Mellea IVR] ❌ Validation FAILED for requirement: '{}'", requirement);
                     all_passed = false;
                     break;
+                } else {
+                    println!("[Mellea IVR] ✅ Validation PASSED for requirement: '{}'", requirement);
                 }
             }
 
             if all_passed {
+                println!("[Mellea IVR] All constraints satisfied! Returning repaired output.");
                 return Ok(response);
             }
 
             // Repair step (simple rejection and retry in PoC MVP)
+            println!("[Mellea IVR] Response rejected. Repair loop triggered...\n");
             loop_count += 1;
         }
 

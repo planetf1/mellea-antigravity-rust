@@ -21,9 +21,19 @@ Run the native brittle approach:
 cargo run --example before_mellea
 ```
 
-Run the robust Gen-Prog approach using Mellea:
+Run the robust Gen-Prog boundary using Mellea's Instruct-Validate-Repair loop:
 ```bash
 cargo run --example after_mellea
+```
+
+See how Mellea powers transparent Generative Functions (like python's `@generative`):
+```bash
+cargo run --example generative_functions
+```
+
+See how Mellea forces Native Rust Structs (`serde` extraction):
+```bash
+cargo run --example structured_data
 ```
 
 ## Setup
