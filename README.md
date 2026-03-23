@@ -10,6 +10,23 @@ When using raw wrappers (like `ollama-rs` or `reqwest`), negative constraints (e
 
 Mellea solves this elegantly with the **Instruct-Validate-Repair (IVR)** pattern.
 
+### 0. The Native Rust Struggle (Without Mellea)
+When using a native backend directly, you just send strings and pray the LLM respects your business rules. If it ignores a negative constraint (e.g. "Do NOT offer refunds"), the bad text goes straight into your application logic unless you build a bespoke while-loop validation engine yourself.
+
+**[See `examples/before_mellea.rs` for the full script](examples/before_mellea.rs)**
+```rust
+let prompt = "Draft an email to a customer... Do NOT offer any refunds or coupons.";
+let req = GenerationRequest::new("granite4:micro".to_string(), prompt.to_string());
+let res = ollama.generate(req).await?;
+
+// Hand-rolled, brittle string-checking polluting your business logic
+let content_lower = res.response.to_lowercase();
+if content_lower.contains("refund") || content_lower.contains("coupon") {
+    println!("[FATAL BUSINESS ERROR]: The model improperly offered a refund!");
+    // You now have to write your own orchestration loop to fix this...
+}
+```
+
 ### 1. The Power of `MelleaSession` (Instruct-Validate-Repair)
 Using the elegant builder API, developers can define strict Requirements. If the LLM generates output violating those requirements, Mellea's internal `RejectionSamplingConfig` loop intercepts the failure, utilizes an `LLMAsAJudgeVerifier`, and automatically repairs the generation invisibly.
 
